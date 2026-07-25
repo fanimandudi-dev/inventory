@@ -26,8 +26,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/app_db
-      JWT_SECRET: change-me-with-a-long-random-string
-      QR_SECRET: change-me-with-another-long-random-string
+      JWT_SECRET: 09876543211234567890098765432112
+      QR_SECRET: 09876543211234567890098765432112
       NODE_ENV: production
     ports:
       - "3000:3000"
