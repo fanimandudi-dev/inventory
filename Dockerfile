@@ -13,24 +13,21 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
 RUN npm run build
-
 # ---- runtime ----
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copie des modules et du build Next.js
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package.json ./package.json
-
-# 💡 ASTUCE : L'étoile (*) à la fin évite l'erreur si public n'existe pas
 COPY --from=builder /app/public* ./public
-
-# Configuration si nécessaire
+COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/drizzle.config.json* ./drizzle.config.json
+
+# 💡 AJOUTER CETTE LIGNE : Copie du dossier src pour que Drizzle trouve schema.ts
+COPY --from=builder /app/src ./src
 
 EXPOSE 3000
 CMD ["npx", "next", "start", "-p", "3000"]
