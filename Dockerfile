@@ -20,16 +20,17 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copie des fichiers compilés et nécessaires
+# Copie des modules et du build Next.js
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 
-# Fichiers de configuration utiles pour Next / Drizzle au runtime
+# 💡 ASTUCE : L'étoile (*) à la fin évite l'erreur si public n'existe pas
+COPY --from=builder /app/public* ./public
+
+# Configuration si nécessaire
 COPY --from=builder /app/next.config.ts ./next.config.ts
-COPY --from=builder /app/drizzle.config.json ./drizzle.config.json
-COPY --from=builder /app/src ./src
+COPY --from=builder /app/drizzle.config.json* ./drizzle.config.json
 
 EXPOSE 3000
 CMD ["npx", "next", "start", "-p", "3000"]
