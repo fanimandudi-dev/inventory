@@ -2,7 +2,7 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-# npm install avec fallback si le package-lock.json est absent ou pose un problème de résolution
+# npm install avec fallback si le package-lock.json est absent
 RUN if [ -f package-lock.json ]; then npm ci --legacy-peer-deps; else npm install --legacy-peer-deps; fi
 
 # ---- build ----
@@ -13,6 +13,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
 RUN npm run build
+
 # ---- runtime ----
 FROM node:22-alpine AS runner
 WORKDIR /app
@@ -26,7 +27,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/drizzle.config.json* ./drizzle.config.json
 
-# 💡 AJOUTER CETTE LIGNE : Copie du dossier src pour que Drizzle trouve schema.ts
+# 💡 Copie de src pour que Drizzle Kit trouve schema.ts
 COPY --from=builder /app/src ./src
 
 EXPOSE 3000
